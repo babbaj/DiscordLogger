@@ -41,11 +41,11 @@ public class DeletedMessageListener extends ListenerAdapter {
         }
     }
 
-    public static final List<String> GUILD_BLACKLIST = Arrays.asList(
+    public static final List<String> GUILD_IGNORELIST = Arrays.asList(
 
     );
 
-    public static final List<String> CHANNEL_BLACKLIST = Arrays.asList(
+    public static final List<String> CHANNEL_IGNORELIST = Arrays.asList(
 
     );
 
@@ -77,7 +77,7 @@ public class DeletedMessageListener extends ListenerAdapter {
 
         message.getEmbeds().stream()
                 .filter(embed -> embed.getThumbnail() != null)
-                .map (MessageEmbed::getThumbnail)
+                .map(MessageEmbed::getThumbnail)
                 .forEach(thumbnail -> {
                     final String fileName = getFileName(message, thumbnail.getProxyUrl());
                     File cached = findFile(fileName, EMBED_DIRECTORY);
@@ -117,25 +117,24 @@ public class DeletedMessageListener extends ListenerAdapter {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return; // ignore bot messages
-        if (CHANNEL_BLACKLIST.contains(event.getChannel().getName())) return;
+        if (CHANNEL_IGNORELIST.contains(event.getChannel().getName())) return;
         if (event.getGuild() != null &&
-            GUILD_BLACKLIST.contains(event.getGuild().getName())) return;
+                GUILD_IGNORELIST.contains(event.getGuild().getName())) return;
 
         Message message = event.getMessage();
 
         message.getAttachments().forEach(attachment -> {
             String fileName = getFileName(message, attachment);
             File file = new File(CACHE_DIRECTORY, fileName);
-            if (file.exists()) {
-                try {
-                    byte[] data = Utils.downloadFile(attachment.getUrl());
-                    if (data != null) {
-                        Files.write(file.toPath(), data, StandardOpenOption.CREATE_NEW);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+            try {
+                byte[] data = Utils.downloadFile(attachment.getUrl());
+                if (data != null) {
+                    Files.write(file.toPath(), data, StandardOpenOption.CREATE_NEW);
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+
         });
 
         message.getEmbeds().stream()
@@ -171,7 +170,7 @@ public class DeletedMessageListener extends ListenerAdapter {
     }
 
     private static String getFileName(Message message, String url) {
-        return String.format("%s-%s",message.getAuthor().getName(), url.substring(url.lastIndexOf('/') + 1));
+        return String.format("%s-%s", message.getAuthor().getName(), url.substring(url.lastIndexOf('/') + 1));
     }
 
 }
