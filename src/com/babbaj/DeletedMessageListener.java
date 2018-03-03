@@ -128,8 +128,8 @@ public class DeletedMessageListener extends ListenerAdapter {
             File file = new File(CACHE_DIRECTORY, fileName);
             try {
                 byte[] data = Utils.downloadFile(attachment.getUrl());
-                if (data != null) {
-                    Files.write(file.toPath(), data, StandardOpenOption.CREATE);
+                if (data != null && !file.exists()) {
+                    Files.write(file.toPath(), data, StandardOpenOption.CREATE_NEW);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -147,8 +147,8 @@ public class DeletedMessageListener extends ListenerAdapter {
                     File file = new File(EMBED_DIRECTORY, fileName);
                     try {
                         byte[] data = Utils.downloadFile(url);
-                        if (data != null) {
-                            Files.write(file.toPath(), data, StandardOpenOption.CREATE);
+                        if (data != null && !file.exists()) {
+                            Files.write(file.toPath(), data, StandardOpenOption.CREATE_NEW);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
