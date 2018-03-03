@@ -129,7 +129,7 @@ public class DeletedMessageListener extends ListenerAdapter {
             try {
                 byte[] data = Utils.downloadFile(attachment.getUrl());
                 if (data != null) {
-                    Files.write(file.toPath(), data, StandardOpenOption.CREATE_NEW);
+                    Files.write(file.toPath(), data, StandardOpenOption.CREATE);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -139,15 +139,16 @@ public class DeletedMessageListener extends ListenerAdapter {
 
         message.getEmbeds().stream()
                 .filter(embed -> embed.getThumbnail() != null)
-                .forEach(embed -> {
-                    final String url = embed.getThumbnail().getProxyUrl();
+                .map(MessageEmbed::getThumbnail)
+                .forEach(thumbnail -> {
+                    final String url = thumbnail.getProxyUrl();
                     final String fileName = getFileName(message, url);
 
                     File file = new File(EMBED_DIRECTORY, fileName);
                     try {
                         byte[] data = Utils.downloadFile(url);
                         if (data != null) {
-                            Files.write(file.toPath(), data, StandardOpenOption.CREATE_NEW);
+                            Files.write(file.toPath(), data, StandardOpenOption.CREATE);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
